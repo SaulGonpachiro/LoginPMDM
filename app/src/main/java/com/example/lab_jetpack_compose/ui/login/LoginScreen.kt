@@ -21,7 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.lab_jetpack_compose.R
-import com.example.lab_jetpack_compose.domain.LogicLogin
+import com.example.lab_jetpack_compose.data.LoginRepository
+import com.example.lab_jetpack_compose.navigation.Routes
 import kotlinx.coroutines.delay
 
 val CustomRed = Color(0xFFB40900)
@@ -29,12 +30,6 @@ val SemiTransparentWhite = Color(0x34FFFFFF)
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
-    //val logic = remember { LogicLogin()
-    //var email by remember {mutableStateOf("") }
-    //var password by remember {mutableStateOf("") }
-    //var errorMessage by remember {mutableStateOfString("") }
-
-
 
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -42,7 +37,7 @@ fun LoginScreen(navController: NavHostController) {
 
     Box(modifier = Modifier.fillMaxSize()) {
 
-        // 1️⃣ Fondo completo
+        // Fondo
         Image(
             painter = painterResource(id = R.drawable.fondo),
             contentDescription = "Fondo de pantalla",
@@ -50,7 +45,7 @@ fun LoginScreen(navController: NavHostController) {
             modifier = Modifier.fillMaxSize()
         )
 
-        // 2️⃣ Logo (ahora garantizado que se muestra encima del fondo)
+        // Logo
         Image(
             painter = painterResource(id = R.drawable.logo1),
             contentDescription = "Logo",
@@ -61,7 +56,7 @@ fun LoginScreen(navController: NavHostController) {
                 .height(154.dp)
         )
 
-        // 3️⃣ Caja semi-transparente central
+        // Caja blanca translúcida
         Column(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -74,7 +69,7 @@ fun LoginScreen(navController: NavHostController) {
                 )
         ) { }
 
-        // 4️⃣ Contenido principal (botones, campos de texto, etc.)
+        // Contenido del login
         Column(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -85,11 +80,18 @@ fun LoginScreen(navController: NavHostController) {
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
 
-            // Botón Login
+            // BOTÓN LOGIN
             Button(
                 onClick = {
-                    val user = logic.comprobarLogin(email, password)
-                    navController.navigate("home/${user.nombre}")
+                    val user = LoginRepository.obtenerUsuarios()
+                        .find { it.email == username && it.password == password }
+
+                    if (user != null) {
+                        mensaje = ""
+                        navController.navigate(Routes.Welcome.createRoute(user.nombre))
+                    } else {
+                        mensaje = "Credenciales incorrectas"
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                 modifier = Modifier
@@ -97,18 +99,25 @@ fun LoginScreen(navController: NavHostController) {
                     .height(98.dp)
             ) {
                 Text(
-                    text = "LOGIN",
+                    text = "GES SPORT",
                     color = CustomRed,
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
                 )
             }
 
-            // Campo usuario
+            // Usuario
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
-                label = { Text("Nombre", color = CustomRed, fontWeight = FontWeight.Bold, fontSize = 18.sp) },
+                label = {
+                    Text(
+                        "Email",
+                        color = CustomRed,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                },
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
                     cursorColor = CustomRed,
@@ -123,11 +132,18 @@ fun LoginScreen(navController: NavHostController) {
                     .background(Color(0x7CFFFFFF))
             )
 
-            // Campo contraseña
+            // Contraseña
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Contraseña", color = CustomRed, fontWeight = FontWeight.Bold, fontSize = 18.sp) },
+                label = {
+                    Text(
+                        "Contraseña",
+                        color = CustomRed,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -142,6 +158,34 @@ fun LoginScreen(navController: NavHostController) {
                     .width(249.dp)
                     .background(Color(0x7CFFFFFF))
             )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // BOTÓN REGISTRARSE
+            Button(
+                onClick = { navController.navigate(Routes.Register.route) },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                modifier = Modifier
+                    .width(180.dp)
+                    .height(70.dp)
+                    .padding(vertical = 2.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 10.dp)
+                ) {
+                    // Si no quieres icono, dejamos espacio para que quede centrado
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        text = "Registrarse",
+                        color = CustomRed,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -161,7 +205,7 @@ fun LoginScreen(navController: NavHostController) {
                 iconSize = 60.dp
             )
 
-            // Mensaje temporal
+            // Mensaje de error temporal
             if (mensaje.isNotEmpty()) {
                 Text(
                     text = mensaje,
