@@ -9,9 +9,6 @@ import androidx.compose.ui.unit.sp
 import com.example.lab_jetpack_compose.R
 
 
-val Poppins = FontFamily(
-    Font(R.font.Inter, FontWeight.Thin),
-)
 // Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(

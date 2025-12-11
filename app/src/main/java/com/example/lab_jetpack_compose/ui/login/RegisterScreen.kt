@@ -49,7 +49,8 @@ fun RegisterScreen(navController: NavHostController) {
                 .width(344.dp)
                 .height(539.dp)
                 .background(Color(0x34FFFFFF), RoundedCornerShape(16.dp))
-        ) {}
+        ) {
+        }
 
         Column(
             modifier = Modifier

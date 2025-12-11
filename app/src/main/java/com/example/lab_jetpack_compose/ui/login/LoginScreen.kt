@@ -88,7 +88,13 @@ fun LoginScreen(navController: NavHostController) {
 
                     if (user != null) {
                         mensaje = ""
-                        navController.navigate(Routes.Welcome.createRoute(user.nombre))
+
+                        // CAMBIO: si es admin va al panel, si no al welcome
+                        if (user.rol == "admin") {
+                            navController.navigate(Routes.AdminPanel.route)
+                        } else {
+                            navController.navigate(Routes.Welcome.createRoute(user.nombre))
+                        }
                     } else {
                         mensaje = "Credenciales incorrectas"
                     }
@@ -176,7 +182,6 @@ fun LoginScreen(navController: NavHostController) {
                         .fillMaxWidth()
                         .padding(start = 10.dp)
                 ) {
-                    // Si no quieres icono, dejamos espacio para que quede centrado
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
                         text = "Registrarse",
