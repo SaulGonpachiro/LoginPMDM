@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -20,240 +21,269 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.lab_jetpack_compose.LabApp
 import com.example.lab_jetpack_compose.R
-import com.example.lab_jetpack_compose.data.LoginRepository
+import com.example.lab_jetpack_compose.models.User
 import com.example.lab_jetpack_compose.navigation.Routes
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 val CustomRed = Color(0xFFB40900)
+val PrimaryRed = Color(0xFF8F0700)
 val SemiTransparentWhite = Color(0x34FFFFFF)
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
 
-    var username by rememberSaveable { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var mensaje by remember { mutableStateOf("") }
+
+    // ✅ Repo de Room
+    val context = LocalContext.current
+    val app = context.applicationContext as LabApp
+    val userRepository = app.container.userRepository
+    val scope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize()) {
 
         // Fondo
         Image(
             painter = painterResource(id = R.drawable.fondo),
-            contentDescription = "Fondo de pantalla",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
         )
 
-        // Logo
-        Image(
-            painter = painterResource(id = R.drawable.logo1),
-            contentDescription = "Logo",
+        // Capa oscura
+        Box(
             modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 40.dp)
-                .width(285.dp)
-                .height(154.dp)
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.55f))
         )
 
-        // Caja blanca translúcida
         Column(
             modifier = Modifier
-                .align(Alignment.Center)
-                .alpha(0.6f)
-                .width(344.dp)
-                .height(539.dp)
-                .background(
-                    color = SemiTransparentWhite,
-                    shape = RoundedCornerShape(16.dp)
-                )
-        ) { }
-
-        // Contenido del login
-        Column(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .width(344.dp)
-                .height(539.dp)
-                .padding(horizontal = 30.dp, vertical = 20.dp),
+                .fillMaxSize()
+                .padding(horizontal = 22.dp, vertical = 18.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceEvenly
+            verticalArrangement = Arrangement.Center
         ) {
 
-            // BOTÓN LOGIN
-            Button(
-                onClick = {
-                    val user = LoginRepository.obtenerUsuarios()
-                        .find { it.email == username && it.password == password }
-
-                    if (user != null) {
-                        mensaje = ""
-
-                        // CAMBIO: si es admin va al panel, si no al welcome
-                        if (user.rol == "admin") {
-                            navController.navigate(Routes.AdminPanel.route)
-                        } else {
-                            navController.navigate(Routes.Welcome.createRoute(user.nombre))
-                        }
-                    } else {
-                        mensaje = "Credenciales incorrectas"
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
-                modifier = Modifier
-                    .width(225.dp)
-                    .height(98.dp)
-            ) {
-                Text(
-                    text = "GES SPORT",
-                    color = CustomRed,
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
-
-            // Usuario
-            OutlinedTextField(
-                value = username,
-                onValueChange = { username = it },
-                label = {
-                    Text(
-                        "Email",
-                        color = CustomRed,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
-                },
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    cursorColor = CustomRed,
-                    focusedBorderColor = CustomRed,
-                    unfocusedBorderColor = Color.Transparent,
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent
-                ),
-                textStyle = TextStyle(color = Color.Black, fontSize = 20.sp),
-                modifier = Modifier
-                    .width(246.dp)
-                    .background(Color(0x7CFFFFFF))
+            // Logo
+            Image(
+                painter = painterResource(id = R.drawable.logo1),
+                contentDescription = "Logo",
+                modifier = Modifier.size(170.dp)
             )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // Título
+            Text(
+                text = "GES SPORT",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = CustomRed
+            )
+
+            Spacer(modifier = Modifier.height(22.dp))
+
+            // Email
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email", color = CustomRed) },
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .alpha(0.88f),
+                textStyle = TextStyle(color = CustomRed),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = SemiTransparentWhite,
+                    focusedBorderColor = CustomRed,
+                    unfocusedContainerColor = SemiTransparentWhite,
+                    focusedContainerColor = SemiTransparentWhite
+                )
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Contraseña
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = {
-                    Text(
-                        "Contraseña",
-                        color = CustomRed,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
-                    )
-                },
+                label = { Text("Contraseña", color = CustomRed) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .alpha(0.88f),
+                textStyle = TextStyle(color = CustomRed),
                 colors = OutlinedTextFieldDefaults.colors(
-                    cursorColor = CustomRed,
+                    unfocusedBorderColor = SemiTransparentWhite,
                     focusedBorderColor = CustomRed,
-                    unfocusedBorderColor = Color.Transparent,
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent
-                ),
-                textStyle = TextStyle(color = Color.Black, fontSize = 20.sp),
-                modifier = Modifier
-                    .width(249.dp)
-                    .background(Color(0x7CFFFFFF))
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // BOTÓN REGISTRARSE
-            Button(
-                onClick = { navController.navigate(Routes.Register.route) },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
-                modifier = Modifier
-                    .width(180.dp)
-                    .height(70.dp)
-                    .padding(vertical = 2.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 10.dp)
-                ) {
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Text(
-                        text = "Registrarse",
-                        color = CustomRed,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Botón Google
-            LoginButton(
-                onClick = { mensaje = "Aún no hace una mierda" },
-                text = "Conectar con Google",
-                iconResId = R.drawable.google,
-                iconSize = 40.dp
-            )
-
-            // Botón Apple
-            LoginButton(
-                onClick = { mensaje = "Aún no hace una mierda" },
-                text = "Conectar con AppleID",
-                iconResId = R.drawable.apple,
-                iconSize = 60.dp
-            )
-
-            // Mensaje de error temporal
-            if (mensaje.isNotEmpty()) {
-                Text(
-                    text = mensaje,
-                    color = Color.Red,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 16.dp)
+                    unfocusedContainerColor = SemiTransparentWhite,
+                    focusedContainerColor = SemiTransparentWhite
                 )
+            )
 
-                LaunchedEffect(mensaje) {
-                    delay(3000)
-                    mensaje = ""
-                }
+            Spacer(modifier = Modifier.height(22.dp))
+
+            // 🔴 BOTÓN PRINCIPAL: INICIAR SESIÓN
+            Button(
+                onClick = {
+                    scope.launch {
+                        val e = email.trim()
+                        val p = password
+
+                        if (e.isBlank() || p.isBlank()) {
+                            mensaje = "Los campos no pueden estar vacíos"
+                            return@launch
+                        }
+
+                        val user = userRepository.getUserByEmail(e)
+                        if (user == null || user.password != p) {
+                            mensaje = "Credenciales incorrectas"
+                            return@launch
+                        }
+
+                        mensaje = ""
+                        val isAdmin = user.rol.trim().uppercase().startsWith("ADMIN")
+
+                        if (isAdmin) {
+                            navController.navigate(Routes.AdminPanel.route)
+                        } else {
+                            navController.navigate(Routes.Welcome.createRoute(user.nombre))
+                        }
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = PrimaryRed),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(64.dp),
+                shape = RoundedCornerShape(20.dp)
+            ) {
+                Text(
+                    "Iniciar sesión",
+                    fontSize = 20.sp,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold
+                )
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // ⚪ BOTÓN SECUNDARIO: CREAR CUENTA (JUGADOR)
+            OutlinedButton(
+                onClick = {
+                    scope.launch {
+                        val e = email.trim()
+                        val p = password.trim()
+
+                        if (e.isBlank() || p.isBlank()) {
+                            mensaje = "Email y contraseña obligatorios"
+                            return@launch
+                        }
+
+                        val existing = userRepository.getUserByEmail(e)
+                        if (existing != null) {
+                            mensaje = "Ese email ya está registrado"
+                            return@launch
+                        }
+
+                        val newUser = User(
+                            id = 0,
+                            nombre = e.substringBefore("@"),
+                            email = e,
+                            password = p,
+                            rol = "JUGADOR"
+                        )
+
+                        userRepository.addUser(newUser)
+                        mensaje = ""
+                        navController.navigate(Routes.Welcome.createRoute(newUser.nombre))
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(58.dp),
+                shape = RoundedCornerShape(20.dp),
+                border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp)
+            ) {
+                Text(
+                    "Crear cuenta",
+                    fontSize = 18.sp,
+                    color = CustomRed,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
+            if (mensaje.isNotBlank()) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(text = mensaje, color = Color.White)
+            }
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            // Separador visual
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Divider(modifier = Modifier.weight(1f), color = Color.Gray)
+                Text(
+                    "  O continuar con  ",
+                    color = Color.White,
+                    fontSize = 12.sp
+                )
+                Divider(modifier = Modifier.weight(1f), color = Color.Gray)
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // ✅ Google / Apple
+            SocialButton(
+                text = "Conectar con Google",
+                iconRes = R.drawable.google,
+                onClick = { /* TODO */ }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            SocialButton(
+                text = "Conectar con AppleID",
+                iconRes = R.drawable.apple,
+                onClick = { /* TODO */ }
+            )
         }
     }
 }
 
 @Composable
-fun LoginButton(onClick: () -> Unit, text: String, iconResId: Int, iconSize: Dp) {
+fun SocialButton(
+    text: String,
+    iconRes: Int,
+    onClick: () -> Unit,
+    height: Dp = 60.dp
+) {
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
         modifier = Modifier
-            .width(304.dp)
-            .height(70.dp)
-            .padding(vertical = 2.dp)
+            .fillMaxWidth()
+            .height(height),
+        shape = RoundedCornerShape(20.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 10.dp)
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
-                painter = painterResource(id = iconResId),
+                painter = painterResource(id = iconRes),
                 contentDescription = null,
-                modifier = Modifier.size(iconSize)
+                modifier = Modifier.size(24.dp)
             )
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = text,
                 color = CustomRed,
-                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
         }

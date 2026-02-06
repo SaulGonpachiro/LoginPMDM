@@ -99,4 +99,9 @@ object DataUserRepository : UserRepository {
     // Obtener por rol
     override suspend fun getUsersByRole(rol: String): List<User> =
         users.filter { it.rol == rol }
+
+    override suspend fun getUserByEmail(email: String): User? {
+        return users.find { it.email.equals(email, ignoreCase = true) }
+    }
+
 }

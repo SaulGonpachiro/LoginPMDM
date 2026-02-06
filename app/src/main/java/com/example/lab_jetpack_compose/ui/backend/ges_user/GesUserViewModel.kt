@@ -5,14 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.lab_jetpack_compose.data.DataUserRepository
 import com.example.lab_jetpack_compose.models.User
 import com.example.lab_jetpack_compose.repository.UserRepository
 import kotlinx.coroutines.launch
 
 class GesUserViewModel(
     // 👇 por defecto, usamos SIEMPRE el singleton DataUserRepository
-    private val userRepository: UserRepository = DataUserRepository
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private var _users by mutableStateOf<List<User>>(emptyList())
@@ -33,7 +32,6 @@ class GesUserViewModel(
 
     fun onRoleSelected(role: String?) {
         selectedRole = role
-        // Si quisieras que el filtro viniera del repo, podrías recargar aquí.
     }
 
     fun addUser(user: User) {

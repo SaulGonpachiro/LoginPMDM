@@ -1,6 +1,5 @@
 package com.example.lab_jetpack_compose.ui.backend.ges_user
 
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,23 +13,25 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.lab_jetpack_compose.LabApp
 import com.example.lab_jetpack_compose.R
 import com.example.lab_jetpack_compose.models.User
 import com.example.lab_jetpack_compose.models.UserRoles
@@ -46,7 +47,15 @@ private val AccentRed = Color(0xFFEF4444)
 fun GesUserScreen(
     navController: NavHostController
 ) {
-    val viewModel: GesUserViewModel = viewModel()
+    // ✅ Repo real (Room) desde AppContainer
+    val context = LocalContext.current
+    val app = context.applicationContext as LabApp
+    val repo = app.container.userRepository
+
+    // ✅ Creamos el ViewModel con tu Factory (ya NO hay DataUserRepository)
+    val viewModel: GesUserViewModel = viewModel(
+        factory = GesUserViewModelFactory(repo)
+    )
 
     val users = viewModel.users
     val selectedRole = viewModel.selectedRole
@@ -242,7 +251,6 @@ fun GesUserScreen(
                         singleLine = true,
                         textStyle = TextStyle(color = Color.White)
                     )
-
 
                     Text(
                         "Rol",

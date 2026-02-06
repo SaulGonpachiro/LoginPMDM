@@ -1,6 +1,5 @@
 package com.example.lab_jetpack_compose.repository
 
-
 import com.example.lab_jetpack_compose.models.User
 
 interface UserRepository {
@@ -13,6 +12,9 @@ interface UserRepository {
 
     /** Obtener un usuario por id */
     suspend fun getUserById(id: Int): User?
+
+    /** ✅ Obtener un usuario por email (para login) */
+    suspend fun getUserByEmail(email: String): User?
 
     /** Crear usuario nuevo */
     suspend fun addUser(user: User): User

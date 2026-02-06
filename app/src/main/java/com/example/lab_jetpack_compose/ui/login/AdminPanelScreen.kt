@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.lab_jetpack_compose.R
-import com.example.lab_jetpack_compose.navigation.Routes    // 👈 IMPORT NUEVO
+import com.example.lab_jetpack_compose.navigation.Routes
 
 @Composable
 fun AdminPanelScreen(navController: NavHostController) {
@@ -101,11 +101,12 @@ fun AdminPanelScreen(navController: NavHostController) {
                         AdminTile(
                             title = "Jugadores",
                             iconRes = R.drawable.jugadores,
-                            onClick = { navController.navigate(Routes.GesUsers.route) } // 👈 AQUÍ NAVEGAMOS
+                            onClick = { navController.navigate(Routes.GesUsers.route) }
                         )
                         AdminTile(
                             title = "Equipos",
-                            iconRes = R.drawable.equipos
+                            iconRes = R.drawable.equipos,
+                            onClick = { navController.navigate(Routes.GesTeam.route) }
                         )
                     }
 
@@ -116,7 +117,8 @@ fun AdminPanelScreen(navController: NavHostController) {
                     ) {
                         AdminTile(
                             title = "Partidos",
-                            iconRes = R.drawable.partidos
+                            iconRes = R.drawable.partidos,
+                            onClick = { navController.navigate(Routes.GesPartidos.route) }
                         )
                     }
 
@@ -127,11 +129,13 @@ fun AdminPanelScreen(navController: NavHostController) {
                     ) {
                         AdminTile(
                             title = "Pistas",
-                            iconRes = R.drawable.pistas
+                            iconRes = R.drawable.pistas,
+                            onClick = { navController.navigate(Routes.GesInstalacion.route) } // ✅ PISTAS
                         )
                         AdminTile(
                             title = "Reserva",
-                            iconRes = R.drawable.reservas
+                            iconRes = R.drawable.reservas,
+                            onClick = { navController.navigate(Routes.GesReservas.route) }
                         )
                     }
                 }
