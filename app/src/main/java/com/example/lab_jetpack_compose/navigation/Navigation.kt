@@ -21,6 +21,10 @@ sealed class Routes(val route: String) {
     object Welcome : Routes("welcome/{username}") {
         fun createRoute(username: String) = "welcome/$username"
     }
+    // ✅ Frontoffice (Jugador / Entrenador)
+    object Home : Routes("home/{userId}") {
+        fun createRoute(userId: Int) = "home/$userId"
+    }
 
     object AdminPanel : Routes("admin_panel")
 
@@ -76,6 +80,14 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
 
         composable(Routes.GesTeam.route) {
             GesTeamScreen(navController = navController)
+        }
+
+        composable(Routes.Home.route) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")?.toIntOrNull() ?: 0
+            com.example.lab_jetpack_compose.home.HomeScreen(
+                navController = navController,
+                userId = userId
+            )
         }
     }
 }

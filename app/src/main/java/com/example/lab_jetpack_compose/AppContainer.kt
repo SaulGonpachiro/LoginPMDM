@@ -1,6 +1,8 @@
 package com.example.lab_jetpack_compose
 
 import android.content.Context
+import com.example.lab_jetpack_compose.data.RoomEntrenamientoEquipoRepository
+import com.example.lab_jetpack_compose.data.RoomInscripcionEntrenamientoRepository
 import com.example.lab_jetpack_compose.data.RoomUserRepository
 import com.example.lab_jetpack_compose.database.AppDatabase
 import com.example.lab_jetpack_compose.repository.UserRepository
@@ -25,4 +27,8 @@ class AppContainer(context: Context) {
     val reservaRepository: ReservaRepository = RoomReservaRepository(db.reservaDao())
     val teamRepository: TeamRepository = RoomTeamRepository(db.teamDao())
 
+    val entrenamientoEquipoRepository =
+        RoomEntrenamientoEquipoRepository(db.entrenamientoEquipoDao())
+    val inscripcionEntrenamientoRepository =
+        RoomInscripcionEntrenamientoRepository(db.inscripcionEntrenamientoDao())
 }

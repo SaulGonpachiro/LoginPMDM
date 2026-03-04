@@ -151,9 +151,13 @@ fun LoginScreen(navController: NavHostController) {
                         val isAdmin = user.rol.trim().uppercase().startsWith("ADMIN")
 
                         if (isAdmin) {
-                            navController.navigate(Routes.AdminPanel.route)
+                            navController.navigate(Routes.AdminPanel.route) {
+                                popUpTo(Routes.Login.route) { inclusive = true }
+                            }
                         } else {
-                            navController.navigate(Routes.Welcome.createRoute(user.nombre))
+                            navController.navigate(Routes.Home.createRoute(user.id)) {
+                                popUpTo(Routes.Login.route) { inclusive = true }
+                            }
                         }
                     }
                 },
@@ -200,9 +204,11 @@ fun LoginScreen(navController: NavHostController) {
                         )
 
                         userRepository.addUser(newUser)
+                        val created = userRepository.getUserByEmail(e)
                         mensaje = ""
-                        navController.navigate(Routes.Welcome.createRoute(newUser.nombre))
-                    }
+                        navController.navigate(Routes.Home.createRoute(newUser.id)) {
+                            popUpTo(Routes.Login.route) { inclusive = true }
+                        }                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
