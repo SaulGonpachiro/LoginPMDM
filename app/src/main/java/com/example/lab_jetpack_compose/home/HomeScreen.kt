@@ -1,5 +1,26 @@
 package com.example.lab_jetpack_compose.home
 
+/**
+ * HomeScreen
+ *
+ * Pantalla principal del usuario (JUGADOR y ENTRENADOR).
+ * Recibe el userId del usuario autenticado para cargar sus datos desde Room.
+ *
+ * Tiene 4 pestañas en el bottom navigation:
+ *   - INICIO   → bienvenida, info general, próximas reservas propias y de equipo
+ *   - RESERVAS → lista de reservas propias con opción de crear y cancelar
+ *   - EQUIPO   → sesiones de entrenamiento (jugador: apuntarse/baja | entrenador: crear)
+ *   - PERFIL   → nombre y rol del usuario
+ *
+ * La topbar incluye:
+ *   - Icono de geolocalización → abre Google Maps con la ubicación del centro
+ *   - Icono de logout → vuelve al Login
+ *
+ * El contenido varía según el rol:
+ *   - JUGADOR     → ve sus reservas y puede apuntarse/baja de sesiones de equipo
+ *   - ENTRENADOR  → puede además crear sesiones de entrenamiento de equipo
+ */
+
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
@@ -84,8 +105,11 @@ fun HomeScreen(
     var formEquipoCapacidad by rememberSaveable { mutableStateOf("4") }
     var formEquipoError by rememberSaveable { mutableStateOf("") }
 
+    // LaunchedEffect se ejecuta UNA SOLA VEZ al montar la pantalla (cuando userId cambia)
+    // Carga el usuario logueado y se suscribe a los Flows de reservas y entrenamientos
     LaunchedEffect(userId) {
-        val u = userRepository.getUserById(userId)
+        val u = // Obtiene el usuario logueado de Room por su id → SELECT * FROM usuarios WHERE id = :id
+                userRepository.getUserById(userId)
         nombre = u?.nombre ?: ""
         rol = u?.rol ?: ""
     }
@@ -95,15 +119,22 @@ fun HomeScreen(
     val rolLabel = if (isEntrenador) "Entrenador" else "Jugador"
 
     // Reservas individuales: todos ven solo las suyas
+    // observeAll() devuelve un Flow<List<Reserva>> — collectAsState() lo convierte en State
+    // Cada vez que Room inserta o borra una reserva, 'reservas' se actualiza y la UI se redibuja sola
     val reservas by reservaRepository.observeAll().collectAsState(initial = emptyList())
     val reservasVisibles = remember(reservas, nombre) {
         reservas.filter { it.nombre == nombre }
     }
 
     // Entrenos + inscripciones del jugador
+    // Flow de todas las sesiones de entrenamiento de equipo
     val entrenos by entrenamientoRepo.observeAll().collectAsState(initial = emptyList())
+    // Flow filtrado por el nombre del jugador logueado — solo sus inscripciones
+    // Se usa para saber si el jugador ya está apuntado a cada sesión
     val inscripcionesJugador by inscripcionRepo.observeByJugador(nombre).collectAsState(initial = emptyList())
-    val misEntrenosIds = remember(inscripcionesJugador) {
+    // Construimos el conjunto de ids de sesiones a las que el jugador YA está inscrito
+                    // Se usa para mostrar 'Apuntarme' o 'Darme de baja' en cada tarjeta
+                    val misEntrenosIds = remember(inscripcionesJugador) {
         inscripcionesJugador.map { it.entrenamientoId }.toSet()
     }
 
@@ -174,7 +205,9 @@ fun HomeScreen(
                             val intent = Intent(Intent.ACTION_VIEW, uri).apply {
                                 setPackage("com.google.android.apps.maps")
                             }
-                            runCatching { context.startActivity(intent) }
+                            runCatching { // Lanzamos el Intent — si no hay app compatible, se ignora
+                        // Lanza Google Maps (o app compatible) con la ubicación del centro
+                        context.startActivity(intent) }
                                 .recoverCatching { context.startActivity(Intent(Intent.ACTION_VIEW, uri)) }
                         }) {
                             Icon(Icons.Filled.LocationOn, contentDescription = "Mapa", tint = Color.Black)
@@ -182,6 +215,7 @@ fun HomeScreen(
 
                         IconButton(onClick = {
                             navController.navigate(Routes.Login.route) {
+                                // inclusive=true borra también el Login del backstack — el usuario no puede volver atrás con el botón
                                 popUpTo(Routes.Login.route) { inclusive = true }
                             }
                         }) {
@@ -371,7 +405,9 @@ fun HomeScreen(
                                                     )
                                                     Text("Cap: ${r.capacidad}", fontSize = 12.sp, color = TextMuted)
                                                 }
-                                                TextButton(onClick = { scope.launch { reservaRepository.delete(r.id) } }) {
+                                                TextButton(onClick = { scope.launch { // Borra la reserva de Room → el Flow la elimina de la lista automáticamente
+                                // delete() → DELETE FROM reservas WHERE id = :id — el Flow actualiza la lista automáticamente
+                                reservaRepository.delete(r.id) } }) {
                                                     Text("Cancelar", color = CustomRed)
                                                 }
                                             }
@@ -435,11 +471,13 @@ fun HomeScreen(
                                                 if (!isEntrenador) {
                                                     if (!estoy) {
                                                         Button(
+                                                            // apuntar() → INSERT en inscripciones_entrenamiento con (entrenamientoId, jugadorNombre)
                                                             onClick = { scope.launch { inscripcionRepo.apuntar(e.id, nombre) } },
                                                             colors = ButtonDefaults.buttonColors(containerColor = PrimaryRed),
                                                             shape = RoundedCornerShape(50)
                                                         ) { Text("Apuntarme", color = Color.Black, fontWeight = FontWeight.Bold) }
                                                     } else {
+                                                        // baja() → DELETE de inscripciones_entrenamiento donde coinciden entrenamientoId y jugadorNombre
                                                         TextButton(onClick = { scope.launch { inscripcionRepo.baja(e.id, nombre) } }) {
                                                             Text("Darme de baja", color = CustomRed)
                                                         }
@@ -535,6 +573,7 @@ fun HomeScreen(
                         }
 
                         scope.launch {
+                            // add() → INSERT en la tabla reservas — el Flow de observeAll() añade la tarjeta sola
                             reservaRepository.add(
                                 Reserva(
                                     id = 0,
@@ -635,6 +674,7 @@ fun HomeScreen(
                         }
 
                         scope.launch {
+                            // El entrenador crea una sesión de equipo → INSERT en entrenamientos_equipo
                             entrenamientoRepo.add(
                                 EntrenamientoEquipo(
                                     id = 0,

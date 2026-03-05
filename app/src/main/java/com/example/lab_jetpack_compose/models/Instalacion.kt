@@ -1,5 +1,9 @@
 package com.example.lab_jetpack_compose.models
 
+/** Entidad Room — tabla de instalaciones/pistas deportivas del centro.
+ * Campos: nombre, tipo de pista, horario disponible y capacidad máxima.
+ */
+
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable

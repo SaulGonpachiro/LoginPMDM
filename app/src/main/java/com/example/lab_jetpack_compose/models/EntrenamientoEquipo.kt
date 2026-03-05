@@ -1,5 +1,9 @@
 package com.example.lab_jetpack_compose.models
 
+/** Entidad Room — sesiones de entrenamiento creadas por un entrenador.
+ * 'creadoPor' es el nombre del entrenador. Los jugadores pueden inscribirse via InscripcionEntrenamiento.
+ */
+
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 

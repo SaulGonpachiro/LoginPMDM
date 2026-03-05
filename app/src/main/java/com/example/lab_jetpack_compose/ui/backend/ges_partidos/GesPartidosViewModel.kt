@@ -16,8 +16,10 @@ class GesPartidosViewModel(
     var partidos by mutableStateOf<List<Partido>>(emptyList())
         private set
 
+    // Al crearse el ViewModel carga automáticamente la lista de partidos de Room
     init { load() }
 
+    // Lanza una corrutina para leer de Room en segundo plano y actualizar la lista
     fun load() {
         viewModelScope.launch { partidos = repo.getAll() }
     }

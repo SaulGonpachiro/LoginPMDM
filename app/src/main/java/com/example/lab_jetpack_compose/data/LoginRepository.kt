@@ -1,3 +1,13 @@
+/**
+ * LoginRepository  [LEGACY - NO SE USA]
+ *
+ * Repositorio de login antiguo con usuarios hardcodeados de una versión anterior.
+ * Fue reemplazado por la autenticación con Room (LoginScreen + RoomUserRepository).
+ *
+ * Se mantiene en el proyecto solo como referencia histórica.
+ * No se referencia desde ningún sitio activo.
+ */
+
 package com.example.lab_jetpack_compose.data
 
 

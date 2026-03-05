@@ -16,8 +16,10 @@ class GesInstalacionViewModel(
     var instalaciones by mutableStateOf<List<Instalacion>>(emptyList())
         private set
 
+    // Al crearse el ViewModel carga automáticamente la lista de instalacións de Room
     init { load() }
 
+    // Lanza una corrutina para leer de Room en segundo plano y actualizar la lista
     fun load() {
         viewModelScope.launch { instalaciones = repo.getAll() }
     }

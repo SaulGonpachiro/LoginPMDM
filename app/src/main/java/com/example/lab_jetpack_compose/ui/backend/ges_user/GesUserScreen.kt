@@ -1,5 +1,18 @@
 package com.example.lab_jetpack_compose.ui.backend.ges_user
 
+/**
+ * GesUserScreen  [BACKOFFICE - Solo accesible desde DashboardScreen]
+ *
+ * Pantalla de gestión de usuarios (CRUD completo).
+ * Permite al admin crear, editar y borrar usuarios de cualquier rol.
+ *
+ * Funcionalidades:
+ *   - Lista todos los usuarios de la BD con FilterChips para filtrar por rol
+ *   - FAB (➕) abre el diálogo de creación
+ *   - Cada tarjeta tiene botones ✏️ (editar) y 🗑️ (borrar con confirmación)
+ *   - El formulario incluye selector de rol con FilterChips
+ */
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -35,12 +48,12 @@ import com.example.lab_jetpack_compose.LabApp
 import com.example.lab_jetpack_compose.R
 import com.example.lab_jetpack_compose.models.User
 import com.example.lab_jetpack_compose.models.UserRoles
+import com.example.lab_jetpack_compose.ui.theme.OverlayDark
+import com.example.lab_jetpack_compose.ui.theme.CardDark
+import com.example.lab_jetpack_compose.ui.theme.AccentPurple
+import com.example.lab_jetpack_compose.ui.theme.AccentRed
 
 // Colores base
-private val OverlayDark = Color(0xAA000000)   // negro semitransparente sobre la imagen
-private val CardDark = Color(0xFF111827)
-private val AccentPurple = Color(0xFF8B5CF6)
-private val AccentRed = Color(0xFFEF4444)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,9 +63,12 @@ fun GesUserScreen(
     // ✅ Repo real (Room) desde AppContainer
     val context = LocalContext.current
     val app = context.applicationContext as LabApp
+    // Obtenemos el repositorio de usuarios del AppContainer
     val repo = app.container.userRepository
 
     // ✅ Creamos el ViewModel con tu Factory (ya NO hay DataUserRepository)
+    // Creamos el ViewModel pasándole el repositorio a través de la Factory
+    // La Factory es necesaria porque el ViewModel recibe parámetros (el repo)
     val viewModel: GesUserViewModel = viewModel(
         factory = GesUserViewModelFactory(repo)
     )
@@ -70,17 +86,20 @@ fun GesUserScreen(
     var password by remember { mutableStateOf("") }
     var rol by remember { mutableStateOf<String?>(null) }
 
+    // Prepara el formulario vacío para crear un usuario nuevo
+    // Si hay un rol seleccionado en el filtro, lo pre-selecciona en el formulario
     fun abrirCrear() {
         isEditing = false
         editingId = null
         nombre = ""
         email = ""
         password = ""
-        // Si estás filtrando por rol, usamos ese rol por defecto
         rol = selectedRole ?: "JUGADOR"
         showForm = true
     }
 
+    // Carga los datos del usuario existente en el formulario para editarlos
+    // Guarda el id en editingId para que al guardar se haga UPDATE en vez de INSERT
     fun abrirEditar(user: User) {
         isEditing = true
         editingId = user.id
@@ -92,9 +111,12 @@ fun GesUserScreen(
     }
 
     // ==== Estado para confirmar borrado ====
+    // Usuario pendiente de borrar — cuando es != null aparece el diálogo de confirmación
     var userToDelete by remember { mutableStateOf<User?>(null) }
 
     // Filtrado por rol en memoria
+    // Filtramos la lista en memoria según el chip seleccionado
+    // Si selectedRole es null mostramos todos; si no, filtramos por rol
     val filteredUsers = if (selectedRole == null) {
         users
     } else {
@@ -299,6 +321,7 @@ fun GesUserScreen(
                                 rol = finalRol
                             )
 
+                            // Si estamos editando → UPDATE en Room; si es nuevo → INSERT
                             if (isEditing) {
                                 viewModel.updateUser(user)
                             } else {
@@ -348,6 +371,7 @@ fun GesUserScreen(
                     }
                     Button(
                         onClick = {
+                            // Confirma el borrado — llama al ViewModel que borra en Room y recarga la lista
                             viewModel.deleteUser(user.id)
                             userToDelete = null
                         },

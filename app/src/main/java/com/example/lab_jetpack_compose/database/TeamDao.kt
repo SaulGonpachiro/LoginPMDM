@@ -1,5 +1,7 @@
 package com.example.lab_jetpack_compose.database
 
+/** DAO de equipos. Operaciones CRUD + Flow para lista reactiva de equipos. */
+
 import androidx.room.*
 import com.example.lab_jetpack_compose.models.Team
 import kotlinx.coroutines.flow.Flow

@@ -14,6 +14,8 @@ class RoomInscripcionEntrenamientoRepository(
     override fun observeByJugador(nombre: String): Flow<List<InscripcionEntrenamiento>> =
         dao.observeByJugador(nombre)
 
+    // Crea la inscripción (relación jugador ↔ sesión) en la BD
+    // Si el DAO devuelve -1L significa que ya estaba inscrito (OnConflict.IGNORE) → devuelve false
     override suspend fun apuntar(entrenamientoId: Int, jugadorNombre: String): Boolean {
         val id = dao.insert(
             InscripcionEntrenamiento(entrenamientoId = entrenamientoId, jugadorNombre = jugadorNombre)
@@ -21,6 +23,7 @@ class RoomInscripcionEntrenamientoRepository(
         return id != -1L
     }
 
+    // Borra la inscripción — el jugador se da de baja de la sesión
     override suspend fun baja(entrenamientoId: Int, jugadorNombre: String): Boolean =
         dao.deleteBy(entrenamientoId, jugadorNombre) > 0
 

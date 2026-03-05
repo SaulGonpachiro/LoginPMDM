@@ -1,5 +1,10 @@
 package com.example.lab_jetpack_compose.models
 
+/** Entidad Room — tabla 'usuarios'. Almacena los datos de cada usuario de la app.
+ * El campo 'rol' puede ser: ADMIN_DEPORTIVO, ENTRENADOR, ARBITRO, JUGADOR.
+ * El email tiene índice único para evitar duplicados en el registro.
+ */
+
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index

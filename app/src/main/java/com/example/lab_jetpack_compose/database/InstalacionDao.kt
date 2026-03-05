@@ -1,5 +1,7 @@
 package com.example.lab_jetpack_compose.database
 
+/** DAO de instalaciones/pistas. Operaciones CRUD + Flow para lista reactiva. */
+
 import androidx.room.*
 import com.example.lab_jetpack_compose.models.Instalacion
 import kotlinx.coroutines.flow.Flow

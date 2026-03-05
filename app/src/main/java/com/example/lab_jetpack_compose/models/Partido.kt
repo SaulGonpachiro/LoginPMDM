@@ -1,5 +1,9 @@
 package com.example.lab_jetpack_compose.models
 
+/** Entidad Room — tabla de partidos. Representa un partido entre dos equipos.
+ * El admin puede crear, editar y borrar partidos desde GesPartidosScreen.
+ */
+
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 

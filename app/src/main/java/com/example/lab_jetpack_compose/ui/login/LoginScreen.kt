@@ -32,16 +32,25 @@ val PrimaryRed = Color(0xFF8F0700)
 val SemiTransparentWhite = Color(0x34FFFFFF)
 
 @Composable
+// LoginScreen: pantalla de inicio de sesión y registro rápido
+// navController: permite navegar a otras pantallas tras el login
 fun LoginScreen(navController: NavHostController) {
 
+    // Estado del campo email — rememberSaveable conserva el valor si el sistema mata la UI
     var email by rememberSaveable { mutableStateOf("") }
+    // Estado del campo contraseña
     var password by rememberSaveable { mutableStateOf("") }
+    // Mensaje de error visible debajo del formulario
     var mensaje by remember { mutableStateOf("") }
 
     // ✅ Repo de Room
     val context = LocalContext.current
     val app = context.applicationContext as LabApp
+    // Obtenemos el repositorio de usuarios desde AppContainer
+    // AppContainer vive en LabApp (la clase Application) y se crea una sola vez al arrancar la app
     val userRepository = app.container.userRepository
+    // scope nos permite lanzar corrutinas desde un Composable
+    // Las operaciones de Room NUNCA se pueden hacer en el hilo principal — necesitan corrutinas
     val scope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -136,25 +145,34 @@ fun LoginScreen(navController: NavHostController) {
                         val e = email.trim()
                         val p = password
 
+                        // Validación básica: campos no vacíos
                         if (e.isBlank() || p.isBlank()) {
                             mensaje = "Los campos no pueden estar vacíos"
                             return@launch
                         }
 
+                        // Buscamos el usuario en Room por email
+                        // getUserByEmail ejecuta: SELECT * FROM usuarios WHERE email = :email LIMIT 1
                         val user = userRepository.getUserByEmail(e)
+
+                        // Si no existe el email o la contraseña no coincide → error
                         if (user == null || user.password != p) {
                             mensaje = "Credenciales incorrectas"
                             return@launch
                         }
 
                         mensaje = ""
+                        // Comprobamos el rol para decidir a qué pantalla navegar
                         val isAdmin = user.rol.trim().uppercase().startsWith("ADMIN")
 
                         if (isAdmin) {
-                            navController.navigate(Routes.AdminPanel.route) {
+                            // Admin → DashboardScreen (panel de gestión)
+                            // popUpTo(inclusive=true) elimina el Login del backstack: el usuario no puede volver atrás
+                            navController.navigate(Routes.Dashboard.route) {
                                 popUpTo(Routes.Login.route) { inclusive = true }
                             }
                         } else {
+                            // Jugador/Entrenador/Árbitro → HomeScreen con su userId como argumento de ruta
                             navController.navigate(Routes.Home.createRoute(user.id)) {
                                 popUpTo(Routes.Login.route) { inclusive = true }
                             }

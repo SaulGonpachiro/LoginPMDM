@@ -1,3 +1,21 @@
+/**
+ * AppDatabase
+ *
+ * Base de datos Room de la aplicación.
+ *
+ * Entidades registradas (cada una corresponde a una tabla):
+ *   - User                    → tabla "usuarios"
+ *   - Instalacion             → tabla de pistas deportivas
+ *   - Partido                 → tabla de partidos
+ *   - Reserva                 → tabla de reservas de pista
+ *   - Team                    → tabla de equipos
+ *   - EntrenamientoEquipo     → sesiones de entrenamiento creadas por entrenadores
+ *   - InscripcionEntrenamiento → relación jugador ↔ sesión de entrenamiento
+ *
+ * Nota: fallbackToDestructiveMigration() elimina y recrea la BD si cambia el schema.
+ * Útil en desarrollo, pero en producción se usarían migraciones reales.
+ */
+
 package com.example.lab_jetpack_compose.database
 
 import android.content.Context
@@ -14,6 +32,9 @@ import com.example.lab_jetpack_compose.models.Team
 
 
 
+// @Database: le indica a Room qué tablas existen y qué versión tiene el esquema
+// Cada vez que se añade o modifica una entidad hay que incrementar 'version'
+// exportSchema=false: no guarda el historial de migraciones en un fichero JSON
 @Database(
     entities = [User::class, Instalacion::class, Partido::class, Reserva::class,
         Team::class, EntrenamientoEquipo::class, InscripcionEntrenamiento::class],
@@ -24,6 +45,7 @@ import com.example.lab_jetpack_compose.models.Team
 
 
 
+// AppDatabase es abstracta: Room genera la implementación real en tiempo de compilación
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
@@ -48,6 +70,8 @@ abstract class AppDatabase : RoomDatabase() {
                     "app_db"
                 )
                     // Para desarrollo (cambias tablas y no quieres migraciones)
+                    // fallbackToDestructiveMigration: si la versión de la BD cambia y no hay migración definida,
+                    // Room borra y recrea la BD. Útil en desarrollo, en producción se usarían migraciones.
                     .fallbackToDestructiveMigration()
                     .build()
 

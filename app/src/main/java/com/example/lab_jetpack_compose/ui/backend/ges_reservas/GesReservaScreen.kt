@@ -1,5 +1,15 @@
 package com.example.lab_jetpack_compose.ui.backend.ges_reservas
 
+/**
+ * GesReservaScreen  [BACKOFFICE - Solo accesible desde DashboardScreen]
+ *
+ * Pantalla de gestión de reservas (CRUD completo).
+ * El admin puede ver, crear, editar y borrar cualquier reserva del sistema.
+ *
+ * A diferencia de la vista del jugador (HomeScreen > RESERVAS),
+ * aquí se ven TODAS las reservas de todos los usuarios.
+ */
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,19 +34,21 @@ import androidx.navigation.NavHostController
 import com.example.lab_jetpack_compose.LabApp
 import com.example.lab_jetpack_compose.R
 import com.example.lab_jetpack_compose.models.Reserva
+import com.example.lab_jetpack_compose.ui.theme.OverlayDark
+import com.example.lab_jetpack_compose.ui.theme.CardDark
+import com.example.lab_jetpack_compose.ui.theme.AccentPurple
+import com.example.lab_jetpack_compose.ui.theme.AccentRed
 
-private val OverlayDark = Color(0xAA000000)
-private val CardDark = Color(0xFF111827)
-private val AccentPurple = Color(0xFF8B5CF6)
-private val AccentRed = Color(0xFFEF4444)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GesReservaScreen(navController: NavHostController) {
 
     val app = LocalContext.current.applicationContext as LabApp
+    // Obtenemos el repositorio de reservas del AppContainer
     val repo = app.container.reservaRepository
 
+    // Creamos el ViewModel con su Factory para pasarle el repositorio
     val vm: GesReservaViewModel = viewModel(factory = GesReservaViewModelFactory(repo))
 
     var showForm by remember { mutableStateOf(false) }
@@ -49,6 +61,7 @@ fun GesReservaScreen(navController: NavHostController) {
     var hora by remember { mutableStateOf("") }
     var capacidad by remember { mutableStateOf("") }
 
+    // Limpia el formulario y abre el dialog en modo creación
     fun abrirCrear() {
         isEditing = false
         editingId = null
@@ -60,6 +73,7 @@ fun GesReservaScreen(navController: NavHostController) {
         showForm = true
     }
 
+    // Pre-rellena el formulario con los datos de la reserva a editar
     fun abrirEditar(r: Reserva) {
         isEditing = true
         editingId = r.id
@@ -71,6 +85,7 @@ fun GesReservaScreen(navController: NavHostController) {
         showForm = true
     }
 
+    // Reserva pendiente de confirmar el borrado
     var reservaToDelete by remember { mutableStateOf<Reserva?>(null) }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -211,7 +226,8 @@ fun GesReservaScreen(navController: NavHostController) {
                                 reserva.fecha.isNotBlank() &&
                                 reserva.hora.isNotBlank()
                             ) {
-                                if (isEditing) vm.update(reserva) else vm.add(reserva)
+                                // UPDATE si editamos, INSERT si es nueva
+                            if (isEditing) vm.update(reserva) else vm.add(reserva)
                                 showForm = false
                             }
                         },
@@ -238,6 +254,7 @@ fun GesReservaScreen(navController: NavHostController) {
                     }
                     Button(
                         onClick = {
+                            // Borrado confirmado — Room elimina la fila y la lista se actualiza
                             vm.delete(r.id)
                             reservaToDelete = null
                         },

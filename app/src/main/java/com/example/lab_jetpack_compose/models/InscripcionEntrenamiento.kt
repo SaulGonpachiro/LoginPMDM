@@ -1,5 +1,10 @@
 package com.example.lab_jetpack_compose.models
 
+/** Entidad Room — relación jugador ↔ sesión de entrenamiento.
+ * Cuando un jugador se apunta a un EntrenamientoEquipo se crea una fila aquí.
+ * Al darse de baja se borra esa fila.
+ */
+
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey

@@ -1,5 +1,14 @@
 package com.example.lab_jetpack_compose.ui.backend.ges_instalacion
 
+/**
+ * GesInstalacionScreen  [BACKOFFICE - Solo accesible desde DashboardScreen]
+ *
+ * Pantalla de gestión de instalaciones y pistas deportivas (CRUD completo).
+ * El admin puede dar de alta pistas nuevas, editarlas o eliminarlas.
+ *
+ * Campos de una instalación: nombre, tipo (FUTBOL/PADEL/TENIS...), horario disponible y capacidad.
+ */
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,21 +38,23 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.foundation.clickable
+import com.example.lab_jetpack_compose.ui.theme.OverlayDark
+import com.example.lab_jetpack_compose.ui.theme.CardDark
+import com.example.lab_jetpack_compose.ui.theme.AccentPurple
+import com.example.lab_jetpack_compose.ui.theme.AccentRed
 
 
 
-private val OverlayDark = Color(0xAA000000)
-private val CardDark = Color(0xFF111827)
-private val AccentPurple = Color(0xFF8B5CF6)
-private val AccentRed = Color(0xFFEF4444)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GesInstalacionScreen(navController: NavHostController) {
 
     val app = LocalContext.current.applicationContext as LabApp
+    // Repositorio de instalaciones del AppContainer
     val repo = app.container.instalacionRepository
 
+    // ViewModel con Factory para inyectar el repositorio
     val vm: GesInstalacionViewModel = viewModel(
         factory = GesInstalacionViewModelFactory(repo)
     )
@@ -57,16 +68,18 @@ fun GesInstalacionScreen(navController: NavHostController) {
     var horario by remember { mutableStateOf("") }
     var capacidad by remember { mutableStateOf("") }
 
+    // Limpia campos y abre el dialog en modo creación
     fun abrirCrear() {
         isEditing = false
         editingId = null
         nombre = ""
-        tipo = "FUTBOL"       // ✅ antes: "PISTA"
+        tipo = "FUTBOL"
         horario = ""
         capacidad = ""
         showForm = true
     }
 
+    // Pre-rellena el formulario con los datos de la instalación a editar
     fun abrirEditar(inst: Instalacion) {
         isEditing = true
         editingId = inst.id
@@ -77,6 +90,7 @@ fun GesInstalacionScreen(navController: NavHostController) {
         showForm = true
     }
 
+    // Instalación pendiente de confirmar el borrado
     var instToDelete by remember { mutableStateOf<Instalacion?>(null) }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -214,6 +228,7 @@ fun GesInstalacionScreen(navController: NavHostController) {
                                 capacidad = capInt
                             )
 
+                            // Solo guardamos si el nombre no está vacío
                             if (inst.nombre.isNotBlank()) {
                                 if (isEditing) vm.update(inst) else vm.add(inst)
                             }
@@ -246,6 +261,7 @@ fun GesInstalacionScreen(navController: NavHostController) {
                     }
                     Button(
                         onClick = {
+                            // Borrado confirmado
                             vm.delete(inst.id)
                             instToDelete = null
                         },

@@ -1,5 +1,7 @@
 package com.example.lab_jetpack_compose.database
 
+/** DAO de partidos. Operaciones CRUD + Flow para lista reactiva de partidos. */
+
 import androidx.room.*
 import com.example.lab_jetpack_compose.models.Partido
 import kotlinx.coroutines.flow.Flow

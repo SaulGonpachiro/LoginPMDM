@@ -16,8 +16,10 @@ class GesReservaViewModel(
     var reservas by mutableStateOf<List<Reserva>>(emptyList())
         private set
 
+    // Al crearse el ViewModel carga automáticamente la lista de reservas de Room
     init { load() }
 
+    // Lanza una corrutina para leer de Room en segundo plano y actualizar la lista
     fun load() {
         viewModelScope.launch { reservas = repo.getAll() }
     }

@@ -1,5 +1,12 @@
 package com.example.lab_jetpack_compose.ui.backend.ges_partidos
 
+/**
+ * GesPartidosScreen  [BACKOFFICE - Solo accesible desde DashboardScreen]
+ *
+ * Pantalla de gestión de partidos (CRUD completo).
+ * El admin puede crear partidos entre equipos, editarlos y eliminarlos.
+ */
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,18 +31,19 @@ import androidx.navigation.NavHostController
 import com.example.lab_jetpack_compose.LabApp
 import com.example.lab_jetpack_compose.R
 import com.example.lab_jetpack_compose.models.Partido
+import com.example.lab_jetpack_compose.ui.theme.OverlayDark
+import com.example.lab_jetpack_compose.ui.theme.CardDark
+import com.example.lab_jetpack_compose.ui.theme.AccentPurple
+import com.example.lab_jetpack_compose.ui.theme.AccentRed
 
 // Estilo igual que GesUser / GesInstalacion
-private val OverlayDark = Color(0xAA000000)
-private val CardDark = Color(0xFF111827)
-private val AccentPurple = Color(0xFF8B5CF6)
-private val AccentRed = Color(0xFFEF4444)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GesPartidosScreen(navController: NavHostController) {
 
     val app = LocalContext.current.applicationContext as LabApp
+    // Repositorio de partidos del AppContainer
     val repo = app.container.partidoRepository
 
     val vm: GesPartidosViewModel = viewModel(
@@ -52,6 +60,7 @@ fun GesPartidosScreen(navController: NavHostController) {
     var fecha by remember { mutableStateOf("") } // ej: 2026-02-02
     var hora by remember { mutableStateOf("") }  // ej: 18:30
 
+    // Limpia campos y abre el dialog en modo creación
     fun abrirCrear() {
         isEditing = false
         editingId = null
@@ -62,6 +71,7 @@ fun GesPartidosScreen(navController: NavHostController) {
         showForm = true
     }
 
+    // Pre-rellena el formulario con los datos del partido a editar
     fun abrirEditar(p: Partido) {
         isEditing = true
         editingId = p.id
@@ -72,6 +82,7 @@ fun GesPartidosScreen(navController: NavHostController) {
         showForm = true
     }
 
+    // Partido pendiente de confirmar el borrado
     var partidoToDelete by remember { mutableStateOf<Partido?>(null) }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -212,6 +223,7 @@ fun GesPartidosScreen(navController: NavHostController) {
                                 partido.fecha.isNotBlank() &&
                                 partido.hora.isNotBlank()
                             ) {
+                                // UPDATE si editamos, INSERT si es nuevo
                                 if (isEditing) vm.update(partido) else vm.add(partido)
                                 showForm = false
                             }
@@ -248,6 +260,7 @@ fun GesPartidosScreen(navController: NavHostController) {
                     }
                     Button(
                         onClick = {
+                            // Borrado confirmado
                             vm.delete(p.id)
                             partidoToDelete = null
                         },

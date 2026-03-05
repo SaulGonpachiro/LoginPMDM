@@ -16,8 +16,10 @@ class GesTeamViewModel(
     var teams by mutableStateOf<List<Team>>(emptyList())
         private set
 
+    // Al crearse el ViewModel carga automáticamente la lista de equipos de Room
     init { load() }
 
+    // Lanza una corrutina para leer de Room en segundo plano y actualizar la lista
     fun load() {
         viewModelScope.launch { teams = repo.getAll() }
     }

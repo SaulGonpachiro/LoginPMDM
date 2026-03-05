@@ -1,5 +1,14 @@
 package com.example.lab_jetpack_compose.ui.backend.ges_team
 
+/**
+ * GesTeamScreen  [BACKOFFICE - Solo accesible desde DashboardScreen]
+ *
+ * Pantalla de gestión de equipos deportivos (CRUD completo).
+ * El admin puede crear, editar y borrar equipos.
+ *
+ * Campos de un equipo: nombre, deporte, categoría (Infantil/Senior...) y capacidad máxima.
+ */
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,17 +33,18 @@ import androidx.navigation.NavHostController
 import com.example.lab_jetpack_compose.LabApp
 import com.example.lab_jetpack_compose.R
 import com.example.lab_jetpack_compose.models.Team
+import com.example.lab_jetpack_compose.ui.theme.OverlayDark
+import com.example.lab_jetpack_compose.ui.theme.CardDark
+import com.example.lab_jetpack_compose.ui.theme.AccentPurple
+import com.example.lab_jetpack_compose.ui.theme.AccentRed
 
-private val OverlayDark = Color(0xAA000000)
-private val CardDark = Color(0xFF111827)
-private val AccentPurple = Color(0xFF8B5CF6)
-private val AccentRed = Color(0xFFEF4444)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GesTeamScreen(navController: NavHostController) {
 
     val app = LocalContext.current.applicationContext as LabApp
+    // Repositorio de equipos del AppContainer
     val repo = app.container.teamRepository
 
     val vm: GesTeamViewModel = viewModel(factory = GesTeamViewModelFactory(repo))
@@ -48,6 +58,7 @@ fun GesTeamScreen(navController: NavHostController) {
     var categoria by remember { mutableStateOf("") }
     var capacidad by remember { mutableStateOf("") }
 
+    // Limpia campos y abre el dialog en modo creación
     fun abrirCrear() {
         isEditing = false
         editingId = null
@@ -58,6 +69,7 @@ fun GesTeamScreen(navController: NavHostController) {
         showForm = true
     }
 
+    // Pre-rellena el formulario con los datos del equipo a editar
     fun abrirEditar(t: Team) {
         isEditing = true
         editingId = t.id
@@ -68,6 +80,7 @@ fun GesTeamScreen(navController: NavHostController) {
         showForm = true
     }
 
+    // Equipo pendiente de confirmar el borrado
     var teamToDelete by remember { mutableStateOf<Team?>(null) }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -193,6 +206,7 @@ fun GesTeamScreen(navController: NavHostController) {
                                 capacidad = capInt
                             )
 
+                            // Solo guardamos si el nombre no está vacío
                             if (team.nombre.isNotBlank()) {
                                 if (isEditing) vm.update(team) else vm.add(team)
                                 showForm = false
@@ -221,6 +235,7 @@ fun GesTeamScreen(navController: NavHostController) {
                     }
                     Button(
                         onClick = {
+                            // Borrado confirmado
                             vm.delete(t.id)
                             teamToDelete = null
                         },

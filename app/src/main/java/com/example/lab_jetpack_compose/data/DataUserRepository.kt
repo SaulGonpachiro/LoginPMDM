@@ -1,3 +1,21 @@
+/**
+ * DataUserRepository  [DATOS DE PRUEBA - NO SE USA EN PRODUCCIÓN]
+ *
+ * Implementación en memoria del UserRepository.
+ * Contiene una lista de usuarios de prueba hardcodeada para facilitar el desarrollo
+ * y las pruebas sin necesidad de tener la BD configurada.
+ *
+ * En la app real se usa RoomUserRepository (con Room).
+ * Este fichero sirve como referencia de los usuarios disponibles para testear.
+ *
+ * Usuarios de prueba:
+ *   ana.admin@club.es     / 1234  → ADMIN_DEPORTIVO
+ *   pedro.entrenador@club.es / 1234 → ENTRENADOR
+ *   laura.jugadora@club.es / 1234 → JUGADOR
+ *   luis.arbitro@club.es  / 1234  → ARBITRO
+ *   (etc.)
+ */
+
 package com.example.lab_jetpack_compose.data
 
 
